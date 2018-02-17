@@ -2,26 +2,34 @@
 
 function readData(callback){
    var features=[];
-  var effectivness=[];
- 
-  var oReq = new XMLHttpRequest();
-  oReq.addEventListener("load", function(){
-    allText =this.responseText;
-    var allTextLines = allText.split(/\r\n|\n/);
-    var headers = allTextLines[0].split(',');
+   var effectivness=[];
 
-    for (var i=1; i<allTextLines.length; i++) {
-      var data = allTextLines[i].split(',');
-      if (data.length == headers.length) {
-          features.push([data[0],data[1],data[2],data[3]]);
-          effectivness.push(data[4])
+   $.ajaxPrefilter( function (options) {
+      if (options.crossDomain && jQuery.support.cors) {
+        var http = (window.location.protocol === 'http:' ? 'http:' : 'https:');
+        options.url = http + '//cors-anywhere.herokuapp.com/' + options.url;
+        //options.url = "http://cors.corsproxy.io/url=" + options.url;
       }
-    }
-    callback(effectivness, features);
-  })
-  oReq.open("GET","http://bahadorsaket.com/others/ranking.csv");
-  oReq.send();
+   });
+
+   $.get(
+        'https://bahadorsaket.com/others/ranking.txt',
+        function (response) {
+            allText =response;
+            var allTextLines = allText.split(/\r\n|\n/);
+            var headers = allTextLines[0].split(',');
+
+            for (var i=1; i<allTextLines.length; i++) {
+              var data = allTextLines[i].split(',');
+              if (data.length == headers.length) {
+                  features.push([data[0],data[1],data[2],data[3]]);
+                  effectivness.push(data[4])
+              }
+            }
+            callback(effectivness, features);
+        });
 }
+
 
 
 function getChartPeformance(message,callback){
